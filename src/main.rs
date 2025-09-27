@@ -10,7 +10,7 @@ use tower_http::{
     cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, filter::LevelFilter};
 
 mod handlers;
 mod models;
@@ -21,10 +21,7 @@ use handlers::{health_check, create_item, get_items, get_item_by_id};
 async fn main() {
     // Initialize tracing
     tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "rust_practice_app=debug,tower_http=debug".into()),
-        )
+        .with(LevelFilter::DEBUG)
         .with(tracing_subscriber::fmt::layer())
         .init();
 
@@ -47,7 +44,7 @@ async fn main() {
         );
 
     // Run the server
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::info!("Server running on http://{}", addr);
     
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
